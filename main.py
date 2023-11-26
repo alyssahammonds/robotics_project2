@@ -66,7 +66,7 @@ def rightTouch():
     touchSensor_R.wait_for_pressed(None, 10)
 
 # wall following functions
-def is_wall():  
+def is_wall():
     # using touch sensors to detect wall
     if touchSensor_L.pressed() or touchSensor_R.pressed():
         if touchSensor_L.pressed():
@@ -96,13 +96,12 @@ def follow_wall():
         turn_left()
         go_forward()
     # if no wall, go forward
-    else:
-        go_forward()
+    go_forward()
 
 # wander behavior
 def wander():
     # this will ran at the beginning of the program
-    # and will run until it finds a wall to follow and 
+    # and will run until it finds a wall to follow and
     # the goal is not found
     while not is_wall() and not is_goal():
         go_forward()
@@ -116,4 +115,5 @@ def wander():
             stopRobot()
             runFan()
 
-wander()
+while not is_goal():
+    wander()
