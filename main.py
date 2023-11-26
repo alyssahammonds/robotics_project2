@@ -18,6 +18,10 @@ touchSensor_L = TouchSensor(Port.S1)
 touchSensor_R = TouchSensor(Port.S4)
 colorSensor = ColorSensor(Port.S2)
 #--------------------------------------------#
+global goal_found
+global wall_found
+global wall_left
+global wall_right
 
 # vars
 goal_found = False
@@ -65,18 +69,16 @@ def rightTouch():
 def is_wall():  
     # using touch sensors to detect wall
     if touchSensor_L.pressed() or touchSensor_R.pressed():
+        if touchSensor_L.pressed():
+            global wall_left
+            wall_left = True
+        elif touchSensor_R.pressed():
+            global wall_right
+            wall_right = True
         return True
     else:
         return False
 
-def is_left_wall():
-    if touchSensor_L.pressed():
-        return True
-
-def is_right_wall():
-    if touchSensor_R.pressed():
-        return True
-    
 def is_goal():
     # candle is on yellow paper, so we will check for that color
     if colorSensor.color() == Color.YELLOW:
@@ -86,11 +88,13 @@ def is_goal():
 
 def follow_wall():
     # if wall is on left, turn right
-    if is_wall() and is_left_wall():
+    if wall_left == True:
         turn_right()
+        go_forward()
     # if wall is on right, turn left
-    elif is_wall() and is_right_wall():
+    elif wall_right == True:
         turn_left()
+        go_forward()
     # if no wall, go forward
     else:
         go_forward()
@@ -104,6 +108,8 @@ def wander():
         go_forward()
     # once a wall is found, follow it
     while is_wall() and not is_goal():
+        stopRobot()
+        ev3.speaker.say("following wall")
         follow_wall()
         # once goal is found, stop
         if is_goal():
