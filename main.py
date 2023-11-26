@@ -6,8 +6,6 @@ from pybricks.parameters import Port, Stop, Direction, Button, Color
 from pybricks.tools import wait, StopWatch, DataLog
 from pybricks.media.ev3dev import SoundFile, ImageFile
 
-# Motor.Control.limits(actuation=75)
-
 #------------- INITILIZE ROBOT --------------#
 ev3 = EV3Brick()
 FL_motor = Motor(Port.A)
@@ -58,6 +56,12 @@ def stopRobot():
 
 def runFan():
     Fan_motor.run_time(60000, 5000, then=Stop.HOLD, wait=True)
+
+def extinguishFire():
+    Fan_motor.control.limits(actuation=100)
+    Fan_motor.run_time(99999999, 5000, then=Stop.HOLD, wait=True)
+    FL_motor.run_time(500, 1000, then=Stop.HOLD, wait=False)
+    FR_motor.run_time(-500, 1000, then=Stop.HOLD, wait=True)
 
 def leftTouch():
     touchSensor_L.wait_for_pressed(None, 10)
@@ -118,7 +122,7 @@ def wander():
         if is_goal():
             print("goal found")
             stopRobot()
-            runFan()
+            extinguishFire()
 
 while not is_goal():
     wander()
