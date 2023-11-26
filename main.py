@@ -105,9 +105,9 @@ def wander():
     # once a wall is found, follow it
     while is_wall() and not is_goal():
         follow_wall()
-    # once goal is found, stop
-    if is_goal():
-        stopRobot()
-        runFan()
+        # once goal is found, stop
+        if is_goal():
+            stopRobot()
+            runFan()
 
 wander()
