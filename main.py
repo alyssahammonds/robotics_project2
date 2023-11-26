@@ -82,6 +82,8 @@ def is_wall():
 def is_goal():
     # candle is on yellow paper, so we will check for that color
     if colorSensor.color() == Color.YELLOW:
+        global goal_found
+        goal_found = True
         return True
     else:
         return False
@@ -105,13 +107,16 @@ def wander():
     # the goal is not found
     while not is_wall() and not is_goal():
         go_forward()
+        print(colorSensor.color())
     # once a wall is found, follow it
     while is_wall() and not is_goal():
         stopRobot()
         ev3.speaker.say("following wall")
+        print(colorSensor.color())
         follow_wall()
         # once goal is found, stop
         if is_goal():
+            print("goal found")
             stopRobot()
             runFan()
 
