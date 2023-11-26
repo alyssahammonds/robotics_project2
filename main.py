@@ -8,12 +8,6 @@ from pybricks.media.ev3dev import SoundFile, ImageFile
 
 # Motor.Control.limits(actuation=75)
 
-# This program requires LEGO EV3 MicroPython v2.0 or higher.
-# Click "Open user guide" on the EV3 extension tab for more information.
-
-# direction = 'N'  # current direction
-#--------------------------------------------#
-
 #------------- INITILIZE ROBOT --------------#
 ev3 = EV3Brick()
 FL_motor = Motor(Port.A)
@@ -22,9 +16,17 @@ Fan_motor = Motor(Port.B)
 ultraSonic = UltrasonicSensor(Port.S3)
 touchSensor_L = TouchSensor(Port.S1)
 touchSensor_R = TouchSensor(Port.S4)
+colorSensor = ColorSensor(Port.S2)
 #--------------------------------------------#
 
-#------------- FUNCTIONS --------------------#
+# vars
+goal_found = False
+wall_found = False
+wall_left = False
+wall_right = False
+
+
+# basic robot functions
 def go_forward():
     FL_motor.run(250)
     FR_motor.run(250)
@@ -59,13 +61,53 @@ def leftTouch():
 def rightTouch():
     touchSensor_R.wait_for_pressed(None, 10)
 
-#------------- PROGRAM --------------------#
-
-while not touchSensor_L.pressed() or touchSensor_R.pressed():
-    go_forward()
+# wall following functions
+def is_wall():  
+    # using touch sensors to detect wall
     if touchSensor_L.pressed() or touchSensor_R.pressed():
-        ev3.speaker.beep()
-        stopRobot()
-    wait(1000)
+        return True
+    else:
+        return False
 
-ev3.speaker.beep()
+def is_left_wall():
+    if touchSensor_L.pressed():
+        return True
+
+def is_right_wall():
+    if touchSensor_R.pressed():
+        return True
+    
+def is_goal():
+    # candle is on yellow paper, so we will check for that color
+    if colorSensor.color() == Color.YELLOW:
+        return True
+    else:
+        return False
+
+def follow_wall():
+    # if wall is on left, turn right
+    if is_wall() and is_left_wall():
+        turn_right()
+    # if wall is on right, turn left
+    elif is_wall() and is_right_wall():
+        turn_left()
+    # if no wall, go forward
+    else:
+        go_forward()
+
+# wander behavior
+def wander():
+    # this will ran at the beginning of the program
+    # and will run until it finds a wall to follow and 
+    # the goal is not found
+    while not is_wall() and not is_goal():
+        go_forward()
+    # once a wall is found, follow it
+    while is_wall() and not is_goal():
+        follow_wall()
+    # once goal is found, stop
+    if is_goal():
+        stopRobot()
+        runFan()
+
+wander()
