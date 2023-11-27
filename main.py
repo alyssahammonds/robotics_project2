@@ -11,7 +11,6 @@ ev3 = EV3Brick()
 FL_motor = Motor(Port.A)
 FR_motor = Motor(Port.D)
 Fan_motor = Motor(Port.B)
-ultraSonic = UltrasonicSensor(Port.S3)
 touchSensor_L = TouchSensor(Port.S1)
 touchSensor_R = TouchSensor(Port.S4)
 colorSensor = ColorSensor(Port.S2)
@@ -55,6 +54,7 @@ def stopRobot():
     FR_motor.brake()
 
 def runFan():
+    Fan_motor.control.limits(actuation=100)
     Fan_motor.run_time(60000, 5000, then=Stop.HOLD, wait=True)
 
 def extinguishFire():
@@ -62,12 +62,6 @@ def extinguishFire():
     Fan_motor.run_time(99999999, 5000, then=Stop.HOLD, wait=True)
     FL_motor.run_time(500, 1000, then=Stop.HOLD, wait=False)
     FR_motor.run_time(-500, 1000, then=Stop.HOLD, wait=True)
-
-def leftTouch():
-    touchSensor_L.wait_for_pressed(None, 10)
-
-def rightTouch():
-    touchSensor_R.wait_for_pressed(None, 10)
 
 # wall following functions
 def is_wall():
@@ -118,11 +112,12 @@ def wander():
         ev3.speaker.say("following wall")
         print(colorSensor.color())
         follow_wall()
-        # once goal is found, stop
-        if is_goal():
-            print("goal found")
-            stopRobot()
-            extinguishFire()
+
 
 while not is_goal():
     wander()
+    # once goal is found, stop
+    if is_goal():
+        print("goal found")
+        stopRobot()
+        extinguishFire()
