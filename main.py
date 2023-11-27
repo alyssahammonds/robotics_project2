@@ -34,8 +34,8 @@ def go_forward():
     wait(1000)
 
 def go_backward():
-    FL_motor.run(-360)
-    FR_motor.run(-360)
+    FL_motor.run(-300)
+    FR_motor.run(-300)
     wait(1000)
 
 def turn_left():
@@ -45,8 +45,8 @@ def turn_left():
     wait(1000)
 
 def turn_right():
-    FL_motor.run_time(500, 1000, then=Stop.HOLD, wait=False)
-    FR_motor.run_time(-500, 1000, then=Stop.HOLD, wait=True)
+    FL_motor.run_time(450, 1000, then=Stop.HOLD, wait=False)
+    FR_motor.run_time(-450, 1000, then=Stop.HOLD, wait=True)
     wait(1000)
 
 def stopRobot():
@@ -79,7 +79,7 @@ def is_wall():
 
 def is_goal():
     # candle is on yellow paper, so we will check for that color
-    if colorSensor.color() == Color.YELLOW:
+    if colorSensor.color() == Color.BLUE:
         global goal_found
         goal_found = True
         return True
@@ -89,11 +89,15 @@ def is_goal():
 def follow_wall():
     # if wall is on left, turn right
     if wall_left == True:
+        go_backward()
         turn_right()
+        wall_left = False
         go_forward()
     # if wall is on right, turn left
     elif wall_right == True:
+        go_backward()
         turn_left()
+        wall_right = False
         go_forward()
     # if no wall, go forward
     go_forward()
@@ -109,7 +113,6 @@ def wander():
     # once a wall is found, follow it
     while is_wall() and not is_goal():
         stopRobot()
-        ev3.speaker.say("following wall")
         print(colorSensor.color())
         follow_wall()
 
