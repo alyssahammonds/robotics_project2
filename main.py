@@ -21,6 +21,7 @@ global goal_found
 global wall_found
 global wall_left
 global wall_right
+global left_turns_count
 
 # vars
 goal_found = False
@@ -28,6 +29,7 @@ wall_found = False
 wall_left = False
 wall_right = False
 running = False
+left_turns_count = 0
 
 
 # def wallRun():
@@ -81,13 +83,13 @@ def go_backward():
 
 def turn_left():
     # run_time(speed, time, then=Stop.HOLD, wait=True)
-    FR_motor.run_time(250, 1000, then=Stop.HOLD, wait=False)
-    FL_motor.run_time(-250, 1000, then=Stop.HOLD, wait=True)
+    FR_motor.run_time(450, 1000, then=Stop.HOLD, wait=False)
+    FL_motor.run_time(-450, 1000, then=Stop.HOLD, wait=True)
     wait(1000)
 
 def turn_right():
-    FL_motor.run_time(250, 1000, then=Stop.HOLD, wait=False)
-    FR_motor.run_time(-250, 1000, then=Stop.HOLD, wait=True)
+    FL_motor.run_time(450, 1000, then=Stop.HOLD, wait=False)
+    FR_motor.run_time(-450, 1000, then=Stop.HOLD, wait=True)
     wait(1000)
 
 def stopRobot():
@@ -106,18 +108,14 @@ def extinguishFire():
 def is_wall():
     # using touch sensors to detect wall
     if touchSensor_L.pressed() or touchSensor_R.pressed():
-        if touchSensor_L.pressed():
-            global wall_left
-            wall_left = True
-        elif touchSensor_R.pressed():
-            global wall_right
-            wall_right = True
+        global wall_found
+        wall_found = True
         return True
     else:
         return False
 
 def is_goal():
-    # candle is on yellow paper, so we will check for that color
+    # candle is on blue paper, so we will check for that color
     if colorSensor.color() == Color.BLUE:
         global goal_found
         goal_found = True
@@ -127,21 +125,16 @@ def is_goal():
 
 def follow_wall():
     ev3.speaker.say("Following Wall")
-    global wall_left
-    global wall_right
 
-    # if wall is on left, turn right
-    if wall_left == True:
+    # left hand rule
+    if wall_found:
         go_backward()
-        turn_right()
-        wall_left = False
-        go_forward()
-    # if wall is on right, turn left
-    elif wall_right == True:
-        go_backward()
-        turn_left()
-        wall_right = False
-        go_forward()
+        if left_turns_count < 10:
+            turn_left()
+            left_turns_count += 1
+        else:
+            turn_right()
+            left_turns_count = 0
     # if no wall, go forward
     go_forward()
 
@@ -169,5 +162,8 @@ while not is_goal():
         print("goal found")
         ev3.speaker.say("Fire")
         extinguishFire()
-        wait(300000)
+        # terminate program
+        exit()
+
+    
 
