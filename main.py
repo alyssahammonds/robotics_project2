@@ -1,4 +1,5 @@
 #!/usr/bin/env pybricks-micropython
+import random
 from pybricks.hubs import EV3Brick
 from pybricks.ev3devices import (Motor, TouchSensor, ColorSensor,
                                  InfraredSensor, UltrasonicSensor, GyroSensor)
@@ -11,6 +12,7 @@ ev3 = EV3Brick()
 FL_motor = Motor(Port.A)
 FR_motor = Motor(Port.D)
 Fan_motor = Motor(Port.B)
+ultraSensor = UltrasonicSensor(Port.S3)
 touchSensor_L = TouchSensor(Port.S1)
 touchSensor_R = TouchSensor(Port.S4)
 colorSensor = ColorSensor(Port.S2)
@@ -25,7 +27,46 @@ goal_found = False
 wall_found = False
 wall_left = False
 wall_right = False
+running = False
 
+
+# def wallRun():
+#     running = True
+#     go_forward()
+#     while running:
+#         print(ultraSensor.distance())
+#         while ultraSensor.distance() > 55:
+#            # tooFar()
+#             if is_wall():
+#                 stopRobot()
+#                 follow_wall()
+#             if colorSensor.color() == Color.BLUE:
+#                 running = False
+#                 fireFound()
+#         while ultraSensor.distance() < 50:
+#             # tooClose()
+#             if is_wall():
+#                 stopRobot()
+#                 follow_wall()
+#             if colorSensor.color() == Color.YELLOW:
+#                 running = False
+#                 fireFound()
+
+# def tooClose():
+#     FL_motor.run(100)
+#     FR_motor.run(150)
+
+# def tooFar():
+#     FR_motor.run(100)
+#     FL_motor.run(150)
+
+# def timeOut():
+#     stopRobot()
+#     go_backward()
+#     if random.randrange(1, 100) >= 51:
+#         turn_right()
+#     if random.randrange(1, 100) <= 50:
+#         turn_left()
 
 # basic robot functions
 def go_forward():
@@ -34,19 +75,19 @@ def go_forward():
     wait(1000)
 
 def go_backward():
-    FL_motor.run(-300)
-    FR_motor.run(-300)
+    FL_motor.run(-100)
+    FR_motor.run(-100)
     wait(1000)
 
 def turn_left():
     # run_time(speed, time, then=Stop.HOLD, wait=True)
-    FR_motor.run_time(500, 1000, then=Stop.HOLD, wait=False)
-    FL_motor.run_time(-500, 1000, then=Stop.HOLD, wait=True)
+    FR_motor.run_time(250, 1000, then=Stop.HOLD, wait=False)
+    FL_motor.run_time(-250, 1000, then=Stop.HOLD, wait=True)
     wait(1000)
 
 def turn_right():
-    FL_motor.run_time(450, 1000, then=Stop.HOLD, wait=False)
-    FR_motor.run_time(-450, 1000, then=Stop.HOLD, wait=True)
+    FL_motor.run_time(250, 1000, then=Stop.HOLD, wait=False)
+    FR_motor.run_time(-250, 1000, then=Stop.HOLD, wait=True)
     wait(1000)
 
 def stopRobot():
@@ -60,8 +101,6 @@ def runFan():
 def extinguishFire():
     Fan_motor.control.limits(actuation=100)
     Fan_motor.run_time(99999999, 5000, then=Stop.HOLD, wait=True)
-    FL_motor.run_time(500, 1000, then=Stop.HOLD, wait=False)
-    FR_motor.run_time(-500, 1000, then=Stop.HOLD, wait=True)
 
 # wall following functions
 def is_wall():
@@ -87,6 +126,10 @@ def is_goal():
         return False
 
 def follow_wall():
+    ev3.speaker.say("Following Wall")
+    global wall_left
+    global wall_right
+
     # if wall is on left, turn right
     if wall_left == True:
         go_backward()
@@ -116,11 +159,15 @@ def wander():
         print(colorSensor.color())
         follow_wall()
 
-
 while not is_goal():
+    ev3.speaker.say("Wandering")
     wander()
+
     # once goal is found, stop
     if is_goal():
-        print("goal found")
         stopRobot()
+        print("goal found")
+        ev3.speaker.say("Fire")
         extinguishFire()
+        wait(300000)
+
