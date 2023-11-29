@@ -21,7 +21,6 @@ global goal_found
 global wall_found
 global wall_left
 global wall_right
-global left_turns_count
 
 # vars
 goal_found = False
@@ -54,9 +53,9 @@ left_turns_count = 0
 #                 running = False
 #                 fireFound()
 
-# def tooClose():
-#     FL_motor.run(100)
-#     FR_motor.run(150)
+def tooClose():
+    FL_motor.run(250)
+    FR_motor.run(300)
 
 # def tooFar():
 #     FR_motor.run(100)
@@ -72,8 +71,8 @@ left_turns_count = 0
 
 # basic robot functions
 def go_forward():
-    FL_motor.run(250)
-    FR_motor.run(250)
+    FL_motor.run(300)
+    FR_motor.run(300)
     wait(1000)
 
 def go_backward():
@@ -124,12 +123,13 @@ def is_goal():
         return False
 
 def follow_wall():
-    ev3.speaker.say("Following Wall")
-
+    # ev3.speaker.say("Following Wall")
+    global left_turns_count
+    print(left_turns_count)
     # left hand rule
     if wall_found:
         go_backward()
-        if left_turns_count < 10:
+        if left_turns_count < 4:
             turn_left()
             left_turns_count += 1
         else:
@@ -144,6 +144,8 @@ def wander():
     # and will run until it finds a wall to follow and
     # the goal is not found
     while not is_wall() and not is_goal():
+        while ultraSensor.distance() < 100:
+            tooClose()
         go_forward()
         print(colorSensor.color())
     # once a wall is found, follow it
@@ -151,12 +153,6 @@ def wander():
         stopRobot()
         print(colorSensor.color())
         follow_wall()
-
-while not is_goal():
-    ev3.speaker.say("Wandering")
-    wander()
-
-    # once goal is found, stop
     if is_goal():
         stopRobot()
         print("goal found")
@@ -165,5 +161,23 @@ while not is_goal():
         # terminate program
         exit()
 
-    
+
+# run it
+
+# print(is_goal())
+
+while not is_goal():
+    print('here')
+    wander()
+
+    # # once goal is found, stop
+    # if is_goal():
+    #     stopRobot()
+    #     print("goal found")
+    #     ev3.speaker.say("Fire")
+    #     extinguishFire()
+    #     # terminate program
+        
+
+
 
